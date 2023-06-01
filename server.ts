@@ -17,8 +17,10 @@ app.use(express.json({ extended: false }));
 app.use(cors());
 
 // ROUTES
-// app.use("/api/subjects", subjects);
-// app.use("/api/topics", topics);
+app.use("/api/auth", require("./routes/authRoute"));
+app.use("/api/users", require("./routes/userRoute"));
+app.use("/api/rides", require("./routes/driverRideRoute"));
+app.use("/api/rides", require("./routes/passengerRideRoute"));
 
 app.get("/", (req: any, res: any) => {
   console.log("Hello world");
