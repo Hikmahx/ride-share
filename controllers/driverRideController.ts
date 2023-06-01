@@ -121,7 +121,7 @@ export const getSingleRide = async (req: AuthRequest, res: Response) => {
 // PUT REQUESTS
 // ---
 
-// @route    UPDATE api/rides/:rideId
+// @route    PUT api/rides/:rideId
 // @desc     update a ride
 // @access   Private (Driver)
 export const updateRide = async (req: AuthRequest, res: Response) => {
@@ -155,7 +155,7 @@ export const updateRide = async (req: AuthRequest, res: Response) => {
         .json({ msg: "Not authorized to update this ride" });
     }
 
-    // Update the topic
+    // UPDATE THE RIDE
     const updatedRide = await DriverRide.findByIdAndUpdate(
       req.params.rideId,
       {
@@ -240,59 +240,6 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to accept/cancel ride request" });
   }
 };
-
-
-// @route    PUT api/rides/:rideId/requests/:requestId
-// @desc     Mark a ride request as completed
-// @access   Private (Passenger)
-export const completeRideRequest = async (req: AuthRequest, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  
-  try {
-    const { rideId, requestId } = req.params;
-    const passengerId = req.user?.id;
-
-    // FIND THE RIDE BY RIDEID
-    const ride = await DriverRide.findById(rideId);
-    if (!ride) {
-      return res.status(404).json({ error: "Ride not found" });
-    }
-
-    // FIND THE PASSENGER RIDE REQUEST BY REQUESTID
-    const passengerRide = await PassengerRide.findById(requestId);
-    if (!passengerRide) {
-      return res.status(404).json({ error: "Ride request not found" });
-    }
-
-    // CHECK IF THE PASSENGER RIDE REQUEST IS ALREADY COMPLETED
-    if (passengerRide.status === "completed") {
-      return res
-        .status(400)
-        .json({ error: "Ride request is already marked as completed" });
-    }
-
-    // CHECK IF THE PASSENGER RIDE REQUEST BELONGS TO THE AUTHENTICATED PASSENGER
-    if (passengerRide.passenger.toString() !== passengerId) {
-      return res
-        .status(401)
-        .json({ error: "Not authorized to mark this ride request as completed" });
-    }
-
-    // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO "COMPLETED"
-    passengerRide.status = "completed";
-    await passengerRide.save();
-
-    res.status(200).json({ message: "Ride request marked as completed" });
-  } catch (error: any) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to mark ride request as completed" });
-  }
-};
-
-
 
 
 // DELETE REQUESTS
