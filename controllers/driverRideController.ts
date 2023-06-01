@@ -96,7 +96,7 @@ export const getAllRides = async (req: AuthRequest, res: Response) => {
 // @route    GET api/rides/:rideId
 // @desc     Get a single ride by ID
 // @access   Private (Driver)
-export const getSingleRide = async (req: AuthRequest, res: Response) => {
+export const getRideById = async (req: AuthRequest, res: Response) => {
   try {
     // Retrieve the driver's ID from the authenticated user
     const driverId = req.user?.id;
