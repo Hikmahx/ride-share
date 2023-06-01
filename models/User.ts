@@ -10,8 +10,8 @@ export interface IUser extends Document {
   number: number;
   verified: boolean;
   location: any;
-  plateNumber?: string;
-  car?: string;
+  // plateNumber?: string;
+  // car?: string;
   _doc: any;
 }
 const userSchema = new Schema<IUser>(
@@ -28,19 +28,29 @@ const userSchema = new Schema<IUser>(
     },
     number: { type: Number, required: true },
     verified: { type: Boolean, required: true, default: false },
-    location: {},
-    plateNumber: {
-      type: String,
-      required: function (this: IUser) {
-        return this.role === "driver";
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        required: true,
       },
-    },
-    car: {
-      type: String,
-      required: function (this: IUser) {
-        return this.role === "driver";
+      coordinates: {
+        type: [Number],
+        required: true,
       },
-    },
+    },    
+    // plateNumber: {
+    //   type: String,
+    //   required: function (this: IUser) {
+    //     return this.role === "driver";
+    //   },
+    // },
+    // car: {
+    //   type: String,
+    //   required: function (this: IUser) {
+    //     return this.role === "driver";
+    //   },
+    // },
   },
   { timestamps: true }
 );

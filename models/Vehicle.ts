@@ -11,6 +11,11 @@ interface IVehicle extends Document {
   avatar: string;
   driver: Schema.Types.ObjectId,
   // defaultVehicle: boolean;
+  available:boolean,
+  location: {
+    type: { type: string };
+    coordinates: number[];
+  };
 }
 
 const vehicleSchema = new Schema<IVehicle>({
@@ -24,6 +29,18 @@ const vehicleSchema = new Schema<IVehicle>({
   avatar: { type: String, required: true },
   driver: { type: Schema.Types.ObjectId, ref: "User" },
   // defaultVehicle: {type: Boolean, default: false},
+  available: {type: Boolean, required:true},
+  location: {
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+  }
 });
 
 const Vehicle = model<IVehicle>("Vehicle", vehicleSchema);
