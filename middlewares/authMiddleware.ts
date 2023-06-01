@@ -52,7 +52,7 @@ export const verifyTokenAndUser = (
 };
 
 // VERIFY IF THE USER IS AN ADMIN
-export const isAdmin = (
+export const verifyTokenAndAdmin = (
   req: AuthRequest,
   res: Response,
   next: NextFunction
