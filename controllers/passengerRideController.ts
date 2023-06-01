@@ -41,15 +41,11 @@ export const createRideRequest = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Passenger not found" });
     }
 
-
-        // FIND THE RIDE BY RIDEID
-        const ride = await DriverRide.findById(rideId).populate("driver");
-        if (!ride) {
-          return res.status(404).json({ error: "Ride not found" });
-        }
-    
-    
-    
+    // FIND THE RIDE BY RIDEID
+    const ride = await DriverRide.findById(rideId).populate("driver");
+    if (!ride) {
+      return res.status(404).json({ error: "Ride not found" });
+    }
 
     // CHECK IF THE RIDE HAS AVAILABLE SEATS
     if (ride.seatsAvailable <= 0) {
@@ -77,7 +73,6 @@ export const createRideRequest = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to create ride request" });
   }
 };
-
 
 // GET REQUESTS
 // ---
@@ -143,7 +138,6 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
   }
 };
 
-
 // @route    GET api/rides/requests
 // @desc     Get all ride requests made by the passenger
 // @access   Private (Passenger)
@@ -161,7 +155,6 @@ export const getAllRequests = async (req: AuthRequest, res: Response) => {
   }
 };
 
-
 // @route    GET api/rides/requests/:requestId
 // @desc     Get a specific ride request made by the passenger by requestId
 // @access   Private (Passenger)
@@ -171,7 +164,10 @@ export const getRequestById = async (req: AuthRequest, res: Response) => {
     const requestId = req.params.requestId;
 
     // Find the ride request where the passenger's ID matches the 'passenger' field and the request ID matches the provided request ID
-    const request = await PassengerRide.findOne({ _id: requestId, passenger: passengerId });
+    const request = await PassengerRide.findOne({
+      _id: requestId,
+      passenger: passengerId,
+    });
 
     if (!request) {
       return res.status(404).json({ error: "Ride request not found" });
@@ -183,8 +179,6 @@ export const getRequestById = async (req: AuthRequest, res: Response) => {
     res.status(500).send("Server Error");
   }
 };
-
-
 
 // PUT REQUESTS
 // ---
@@ -208,7 +202,6 @@ export const updateRequest = async (req: AuthRequest, res: Response) => {
       price,
       ...updatedFields
     } = req.body;
-
 
     // Find the ride by rideId
     const ride = await DriverRide.findById(rideId);
@@ -243,7 +236,9 @@ export const updateRequest = async (req: AuthRequest, res: Response) => {
       { new: true }
     );
 
-    res.status(200).json({ msg: "Ride request is successfully updated", updatedRequest });
+    res
+      .status(200)
+      .json({ msg: "Ride request is successfully updated", updatedRequest });
   } catch (error: any) {
     console.error(error.message);
     res.status(500).send("Server Error");
@@ -258,7 +253,7 @@ export const completeRideRequest = async (req: AuthRequest, res: Response) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  
+
   try {
     const { rideId, requestId } = req.params;
     const passengerId = req.user?.id;
@@ -284,9 +279,9 @@ export const completeRideRequest = async (req: AuthRequest, res: Response) => {
 
     // CHECK IF THE PASSENGER RIDE REQUEST BELONGS TO THE AUTHENTICATED PASSENGER
     if (passengerRide.passenger.toString() !== passengerId) {
-      return res
-        .status(401)
-        .json({ error: "Not authorized to mark this ride request as completed" });
+      return res.status(401).json({
+        error: "Not authorized to mark this ride request as completed",
+      });
     }
 
     // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO "COMPLETED"
@@ -302,20 +297,36 @@ export const completeRideRequest = async (req: AuthRequest, res: Response) => {
 
 // DELETE REQUESTS
 
-// @route    DELETE api/rides/requests/:requestId
+// @route    DELETE api/rides/:rideId/requests/:requestId
 // @desc     Delete a ride request
 // @access   Private (Passenger)
 export const deleteRequest = async (req: AuthRequest, res: Response) => {
   try {
     const passengerId = req.user?.id;
-    const requestId = req.params.requestId;
+    const { rideId, requestId } = req.params;
+    const ride = await DriverRide.findById(rideId);
+    if (!ride) {
+      return res.status(404).json({ error: "Ride requset not found" });
+    }
 
-    // Find the ride request where the passenger's ID matches the 'passenger' field and the request ID matches the provided request ID
-    const request = await PassengerRide.findOneAndDelete({ _id: requestId, passenger: passengerId });
-
-    if (!request) {
+    // FIND THE PASSENGER RIDE REQUEST BY REQUESTID
+    const passengerRide = await PassengerRide.findById(requestId);
+    if (!passengerRide) {
       return res.status(404).json({ error: "Ride request not found" });
     }
+
+    // CHECK IF THE PASSENGER RIDE REQUEST BELONGS TO THE AUTHENTICATED PASSENGER
+    if (passengerRide.passenger.toString() !== passengerId) {
+      return res.status(401).json({
+        error: "Not authorized to delete this ride request",
+      });
+    }
+
+    // Find the ride request where the passenger's ID matches the 'passenger' field and the request ID matches the provided request ID
+    const request = await PassengerRide.findOneAndDelete({
+      _id: requestId,
+      passenger: passengerId,
+    });
 
     res.status(200).json({ msg: "Ride request is successfully deleted" });
   } catch (error: any) {
