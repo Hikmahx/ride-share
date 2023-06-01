@@ -324,3 +324,32 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to accept/cancel ride request" });
   }
 };
+
+
+// @route    DELETE api/rides/:rideId
+// @desc     Delete a ride
+// @access   Private (Driver)
+export const deleteRide = async (req: AuthRequest, res: Response) => {
+  try {
+    const ride = await Ride.findByIdAndDelete(req.params.rideId);
+
+    if (!ride) {
+      return res.status(404).json({ msg: "Ride not found" });
+    }
+
+    // Check if the user is the creator of the ride or an admin
+    if (
+      ride.driver?.toString() !== req.user?.id ||
+      req.user?.role !== "admin"
+    ) {
+      return res
+        .status(401)
+        .json({ msg: "Not authorized to delete this ride" });
+    }
+
+    res.status(200).json({ msg: "Ride is successfully deleted" });
+  } catch (error: any) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+};
