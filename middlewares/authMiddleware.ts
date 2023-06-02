@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import dotenv from "dotenv";
+import User from "../models/User";
 dotenv.config({ path: "../config/config.env" });
 
 interface User {
@@ -73,16 +74,23 @@ export const verifyTokenAndAdmin = (
   });
 };
 
-export const verifiedUser = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  verifyToken(req, res, () => {
-    if (req.user?.verified === true) {
-      next();
-    } else {
-      res.status(403).json({ message: "You need to be verified to do this" });
-    }
-  });
-};
+// export const verifiedUser = async (
+//   req: AuthRequest,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     // Fetch the user from the database based on the user ID in the token
+//     const user = await User.findById(req.user?.id);
+
+//     if (user?.verified) {
+//       next();
+//     } else {
+//       res.status(403).json({ message: "You need to be verified to do this" });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
