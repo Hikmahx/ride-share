@@ -26,7 +26,7 @@ const vehicleSchema = new Schema<IVehicle>({
   plateNumber: { type: String, required: true, unique: true },
   description: { type: String },
   seats: { type: Number, required: true },
-  avatar: { type: String, required: true },
+  avatar: { type: String },
   driver: { type: Schema.Types.ObjectId, ref: "User" },
   // defaultVehicle: {type: Boolean, default: false},
   available: {type: Boolean, required:true},
