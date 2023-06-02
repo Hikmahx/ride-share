@@ -159,8 +159,8 @@ export const updateRide = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ msg: "Ride not found" });
     }
 
-    // Check if the user is the creator of the ride or an admin
-    if (ride.driver?.toString() != req.user?.id || req.user?.role != "admin") {
+    // Check if the user is the creator of the ride
+    if (ride.driver?.toString() != req.user?.id) {
       return res
         .status(401)
         .json({ msg: "Not authorized to update this ride" });
@@ -181,7 +181,7 @@ export const updateRide = async (req: AuthRequest, res: Response) => {
       { new: true }
     );
 
-    res.status(200).json({ msg: "Ride is successfully updated", updateRide });
+    res.status(200).json({ msg: "Ride is successfully updated", updatedRide });
   } catch (err: any) {
     if (err.name === "CastError") {
       return res.status(400).json({ msg: "Ride doesn't exist" });
@@ -272,8 +272,8 @@ export const deleteRide = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ msg: "Ride not found" });
     }
 
-    // Check if the user is the creator of the ride or an admin
-    if (ride.driver?.toString() != req.user?.id || req.user?.role != "admin") {
+    // Check if the user is the creator of the ride
+    if (ride.driver?.toString() != req.user?.id) {
       return res
         .status(401)
         .json({ msg: "Not authorized to delete this ride" });
