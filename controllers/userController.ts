@@ -62,7 +62,8 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const payload = {
       user: {
-        id: user.id
+        id: user.id,
+        role: user.role
       },
     };
 

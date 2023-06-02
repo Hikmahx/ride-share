@@ -53,6 +53,7 @@ export const authenticateUser = async (req: AuthRequest, res: Response) => {
     const payload = {
       user: {
         id: user.id,
+        role: user.role
       },
     };
 
@@ -87,6 +88,9 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
 
     let newPassword;
 
+    if (!user) {
+      return res.status(400).json({ msg: "User doesn't exist" });
+    }
     // CHECK IF THE USER WANTS TO UPDATE THEIR PASSWORD
     if (req.body.password && user != null) {
       // IF CURRENT PASSWORD ISN'T GIVEN

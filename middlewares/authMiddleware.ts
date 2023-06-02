@@ -25,10 +25,13 @@ export const verifyToken = (
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    if (typeof decoded === "string") {
+    if (typeof decoded == "string") {
       throw new Error("Invalid token");
     }
-    req.user = decoded.user;
+    req.user = {
+      id: decoded.user.id,
+      role: decoded.user.role
+    };
     next();
   } catch (error) {
     console.error(error);
@@ -43,7 +46,7 @@ export const verifyTokenAndUser = (
   next: NextFunction
 ) => {
   verifyToken(req, res, () => {
-    if (req.user?.id === req.body.user || req.user?.role !== "admin") {
+    if (req.user?.id === req.params.id) {
       next();
     } else {
       res.status(403).json({ message: "You're not allowed to do that!" });
