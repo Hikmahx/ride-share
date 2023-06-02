@@ -29,7 +29,7 @@ export const createRide = async (req: AuthRequest, res: Response) => {
   try {
     const {
       driverId,
-      vehicleId,
+      // vehicle,
       pickupLocation,
       dropoffLocation,
       seatsAvailable,
@@ -43,17 +43,23 @@ export const createRide = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: "Driver not found" });
     }
 
-    // FIND THE VEHICLE BY VEHICLEID
-    const vehicle = await Vehicle.findById(vehicleId);
+    if (!driver?.verified) {
+      res.status(403).json({ message: "You need to be verified to do this" });
+    }
 
-    if (!vehicle) {
-      return res.status(404).json({ error: "Vehicle not found" });
+    // // FIND THE VEHICLE OF THE DRIVER
+    const driverVehicle = await Vehicle.findOne({ driver: req.user?.id });
+    // console.log(driverVehicle);
+    if (!driverVehicle) {
+      return res
+        .status(404)
+        .json({ error: "Driver need a vehicle before creating a ride" });
     }
 
     // Create a new driver ride
     const driverRide = new DriverRide({
       driver: req.user?.id,
-      vehicle: vehicleId,
+      vehicle: driverVehicle,
       pickupLocation,
       dropoffLocation,
       seatsAvailable,
@@ -137,6 +143,13 @@ export const updateRide = async (req: AuthRequest, res: Response) => {
       ...updatedFields
     } = req.body;
 
+    // FIND THE DRIVER BY DRIVERID
+    const driver = await User.findById(req.user?.id);
+
+    if (!driver?.verified) {
+      res.status(403).json({ message: "You need to be verified to do this" });
+    }
+
     const ride = await DriverRide.findById(req.params.rideId);
 
     if (!ride) {
@@ -159,7 +172,7 @@ export const updateRide = async (req: AuthRequest, res: Response) => {
           dropoffLocation,
           seatsAvailable,
           price,
-          ...updatedFields,
+          // ...updatedFields, // I commented this bcos it is best for only the four fields to be allowed update here
         },
       },
       { new: true }
