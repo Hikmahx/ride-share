@@ -1,9 +1,7 @@
-
 import { Request, Response } from "express";
 import { body, validationResult, Result } from "express-validator";
 import User, { IUser } from "../models/User";
 import Vehicle from "../models/Vehicle";
-
 
 interface AuthRequest extends Request {
   user?: IUser;
@@ -31,7 +29,7 @@ export const createVehicle = async (req: AuthRequest, res: Response) => {
       location,
     } = req.body;
 
-    // Check if the driver already has a vehicle
+    // Check if the driver already has a vehicle (to avoid multiple people from only an account)
     const existingVehicle = await Vehicle.findOne({ driver: req.user?.id });
 
     if (existingVehicle) {
@@ -39,6 +37,13 @@ export const createVehicle = async (req: AuthRequest, res: Response) => {
         error:
           "Driver already has a vehicle. Update your vehicle if you need to",
       });
+    }
+
+    const driver = await User.findById(req.user?.id);
+
+    // CHECK IF THE USER IS A DRIVER 
+    if (driver?.role != "driver") {
+      return res.status(404).json({ msg: "Only a drive can create a vehicle" });
     }
 
     // Create a new vehicle
