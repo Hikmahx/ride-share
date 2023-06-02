@@ -70,3 +70,20 @@ export const createVehicle = async (req: AuthRequest, res: Response) => {
     res.status(500).send("Server Error");
   }
 };
+
+// @route    GET api/vehicles
+// @desc     Get vehicle of a driver
+// @access   Private (Driver)
+export const getDriverVehicle = async (req: AuthRequest, res: Response) => {
+  try {
+    // Find the vehicle of the driver
+    const vehicle = await Vehicle.findOne({ driver: req.user?.id });
+    if (!vehicle) {
+      return res.status(404).json({ error: "No vehicle" });
+    }
+    res.json(vehicle);
+  } catch (err: any) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+};

@@ -1,11 +1,10 @@
 import express from "express";
 import {
-  verifiedUser,
   verifyToken,
   verifyTokenAndUser,
 } from "../middlewares/authMiddleware";
 import { body } from "express-validator";
-import { createVehicle } from "../controllers/vehicleController";
+import { createVehicle, getDriverVehicle } from "../controllers/vehicleController";
 
 const router = express.Router();
 
@@ -26,5 +25,12 @@ router.post(
   verifyToken,
   createVehicle
 );
+
+//  Get vehicle of a driver
+router.get(
+  "/",
+  verifyToken,
+  getDriverVehicle
+);  
 
 module.exports = router;
