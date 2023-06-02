@@ -6,6 +6,7 @@ dotenv.config({ path: "../config/config.env" });
 interface User {
   id: string;
   role: boolean;
+  verified: boolean;
 }
 
 interface AuthRequest extends Request {
@@ -30,7 +31,7 @@ export const verifyToken = (
     }
     req.user = {
       id: decoded.user.id,
-      role: decoded.user.role
+      role: decoded.user.role,
     };
     next();
   } catch (error) {
@@ -39,7 +40,7 @@ export const verifyToken = (
   }
 };
 
-// TO CHECK IF THE USER/ ADMIN IS THE ONE MAKING THE REQUEST
+// TO CHECK IF THE USER IS THE ONE MAKING THE REQUEST
 export const verifyTokenAndUser = (
   req: AuthRequest,
   res: Response,
@@ -68,6 +69,20 @@ export const verifyTokenAndAdmin = (
       next();
     } catch (error) {
       return res.status(401).json({ message: "Invalid token" });
+    }
+  });
+};
+
+export const verifiedUser = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  verifyToken(req, res, () => {
+    if (req.user?.verified === true) {
+      next();
+    } else {
+      res.status(403).json({ message: "You need to be verified to do this" });
     }
   });
 };
