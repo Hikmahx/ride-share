@@ -77,28 +77,33 @@ export const authenticateUser = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// @ route    PUT api/auth
+// @ route    PUT api/auth/:id
 // @desc      Update user
 // @ access   Private
 export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
     const { password, currentPassword, ...others } = req.body;
-    const user: IUser | null = await User.findById(req.params.id);
-    let newPassword: string | undefined;
+    const user = await User.findById(req.params.id);
 
-    if (password) {
+    let newPassword;
+
+    // CHECK IF THE USER WANTS TO UPDATE THEIR PASSWORD
+    if (req.body.password && user != null) {
+      // IF CURRENT PASSWORD ISN'T GIVEN
+      if (!req.body.currentPassword) {
+        return res.status(400).json({
+          msg: "Provide your current password before you can update your password",
+        });
+      }
       let salt = await bcrypt.genSalt(10);
       newPassword = await bcrypt.hash(req.body.password, salt);
-      const isMatch = await bcrypt.compare(
-        currentPassword,
-        user?.password || ""
-      );
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
         return res.status(400).json({ msg: "Old password isn't correct" });
       }
     }
 
-    const updatedUser: IUser | null = await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       req.user?.id,
       {
         $set: {
@@ -119,7 +124,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// @ route    DELETE api/auth
+// @ route    DELETE api/auth/:id
 // @ desc     Delete user
 // @ access   Private
 export const deleteUser = async (req: AuthRequest, res: Response) => {
