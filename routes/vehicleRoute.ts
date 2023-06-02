@@ -1,10 +1,11 @@
 import express from "express";
-import {
-  verifyToken,
-  verifyTokenAndUser,
-} from "../middlewares/authMiddleware";
+import { verifyToken, verifyTokenAndUser } from "../middlewares/authMiddleware";
 import { body } from "express-validator";
-import { createVehicle, getDriverVehicle } from "../controllers/vehicleController";
+import {
+  createVehicle,
+  getDriverVehicle,
+  updateVehicle,
+} from "../controllers/vehicleController";
 
 const router = express.Router();
 
@@ -27,10 +28,9 @@ router.post(
 );
 
 //  Get vehicle of a driver
-router.get(
-  "/",
-  verifyToken,
-  getDriverVehicle
-);  
+router.get("/", verifyToken, getDriverVehicle);
+
+// Update the vehicle of a driver
+router.put("/:id", verifyToken, updateVehicle);
 
 module.exports = router;
