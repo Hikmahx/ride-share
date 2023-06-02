@@ -70,8 +70,8 @@ export const createRide = async (req: AuthRequest, res: Response) => {
 
     // res.status(201).json({ message: "Ride created successfully" });
     res.status(200).json({ message: "Ride created successfully", driverRide });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).send("Server Error");
   }
 };
@@ -91,8 +91,8 @@ export const getAllRides = async (req: AuthRequest, res: Response) => {
     const rides = await DriverRide.find({ driver: driverId });
 
     res.status(200).json(rides);
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (err: any) {
+    console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
@@ -116,8 +116,11 @@ export const getRideById = async (req: AuthRequest, res: Response) => {
     }
 
     res.status(200).json(ride);
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Ride doesn't exist" });
+    }
+    console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
@@ -179,8 +182,12 @@ export const updateRide = async (req: AuthRequest, res: Response) => {
     );
 
     res.status(200).json({ msg: "Ride is successfully updated", updateRide });
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Ride doesn't exist" });
+    }
+
+    console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
@@ -244,7 +251,10 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
       // IF ACTION GIVEN IS NOT ACCEPTED OR CANCELLED (WILL UPDATE LATER, IE IF ITS COMPLETED IT IS THE PASSENGER WHO WILL PERFORM THIS ACTION)
       return res.status(400).json({ error: "Invalid action" });
     }
-  } catch (error) {
+  } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Ride or Request doesn't exist" });
+    }
     res.status(500).json({ error: "Failed to accept/cancel ride request" });
   }
 };
@@ -270,8 +280,11 @@ export const deleteRide = async (req: AuthRequest, res: Response) => {
     }
 
     res.status(200).json({ msg: "Ride is successfully deleted" });
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Ride doesn't exist" });
+    }
+    console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
