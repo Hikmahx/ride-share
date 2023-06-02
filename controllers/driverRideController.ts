@@ -15,7 +15,6 @@ interface AuthRequest extends Request {
   user?: IUser;
 }
 
-
 // POST REQUESTS
 // ---
 
@@ -40,7 +39,7 @@ export const createRide = async (req: AuthRequest, res: Response) => {
     // FIND THE DRIVER BY DRIVERID
     const driver = await User.findById(driverId);
 
-    if (!driver || driver.role !== "driver") {
+    if (!driver || driver.role != "driver") {
       return res.status(404).json({ error: "Driver not found" });
     }
 
@@ -70,7 +69,6 @@ export const createRide = async (req: AuthRequest, res: Response) => {
     res.status(500).send("Server Error");
   }
 };
-
 
 // GET REQUESTS
 // ---
@@ -146,10 +144,7 @@ export const updateRide = async (req: AuthRequest, res: Response) => {
     }
 
     // Check if the user is the creator of the ride or an admin
-    if (
-      ride.driver?.toString() !== req.user?.id ||
-      req.user?.role !== "admin"
-    ) {
+    if (ride.driver?.toString() != req.user?.id || req.user?.role != "admin") {
       return res
         .status(401)
         .json({ msg: "Not authorized to update this ride" });
@@ -203,18 +198,18 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
     }
 
     // CHECK IF THE PASSENGER RIDE REQUEST IS ALREADY ACCEPTED OR CANCELLED
-    if (passengerRide.status === "accepted") {
+    if (passengerRide.status == "accepted") {
       return res
         .status(400)
         .json({ error: "Ride request is already accepted" });
-    } else if (passengerRide.status === "cancelled") {
+    } else if (passengerRide.status == "cancelled") {
       return res
         .status(400)
         .json({ error: "Ride request is already cancelled" });
     }
 
     // HANDLE THE DRIVER'S ACTION
-    if (action === "accept") {
+    if (action == "accept") {
       // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO "ACCEPTED"
       passengerRide.status = "accepted";
       await passengerRide.save();
@@ -226,7 +221,7 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
       return res
         .status(200)
         .json({ message: "Ride request accepted by driver" });
-    } else if (action === "cancel") {
+    } else if (action == "cancel") {
       // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO "CANCELLED"
       passengerRide.status = "cancelled";
       await passengerRide.save();
@@ -240,7 +235,6 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to accept/cancel ride request" });
   }
 };
-
 
 // DELETE REQUESTS
 
@@ -256,10 +250,7 @@ export const deleteRide = async (req: AuthRequest, res: Response) => {
     }
 
     // Check if the user is the creator of the ride or an admin
-    if (
-      ride.driver?.toString() !== req.user?.id ||
-      req.user?.role !== "admin"
-    ) {
+    if (ride.driver?.toString() != req.user?.id || req.user?.role != "admin") {
       return res
         .status(401)
         .json({ msg: "Not authorized to delete this ride" });

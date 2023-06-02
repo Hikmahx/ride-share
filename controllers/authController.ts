@@ -116,7 +116,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
 
     res.status(200).json(updatedUser);
   } catch (err: any) {
-    if (err.name === "CastError") {
+    if (err.name == "CastError") {
       return res.status(400).json({ msg: "User doesn't exist" });
     }
     console.error(err.message);
@@ -135,7 +135,7 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
     }
     res.status(200).json({ msg: "User is successfully deleted" });
   } catch (err: any) {
-    if (err.name === "CastError") {
+    if (err.name == "CastError") {
       return res.status(400).json({ msg: "User doesn't exist" });
     }
     console.error(err.message);

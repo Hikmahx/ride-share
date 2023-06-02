@@ -29,7 +29,7 @@ interface AuthRequest extends Request {
 //     const { passengerLatitude, passengerLongitude } = req.query;
 //     const maxDistance = 10; // Maximum distance in kilometers
 
-//     if (typeof passengerLatitude !== 'string' || typeof passengerLongitude !== 'string') {
+//     if (typeof passengerLatitude != 'string' || typeof passengerLongitude != 'string') {
 //       return res.status(400).json({ msg: "Invalid latitude or longitude" });
 //     }
 
@@ -67,8 +67,8 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
     const { passengerLatitude, passengerLongitude } = req.query;
 
     if (
-      typeof passengerLatitude !== "string" ||
-      typeof passengerLongitude !== "string"
+      typeof passengerLatitude != "string" ||
+      typeof passengerLongitude != "string"
     ) {
       return res.status(400).json({ msg: "Invalid latitude or longitude" });
     }
@@ -124,13 +124,19 @@ export const createRide = async (req: AuthRequest, res: Response) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const { driverId, vehicleId, pickupLocation, dropoffLocation, seatsAvailable, price } =
-      req.body;
+    const {
+      driverId,
+      vehicleId,
+      pickupLocation,
+      dropoffLocation,
+      seatsAvailable,
+      price,
+    } = req.body;
 
     // FIND THE DRIVER BY DRIVERID
     const driver = await User.findById(driverId);
 
-    if (!driver || driver.role !== "driver") {
+    if (!driver || driver.role != "driver") {
       return res.status(404).json({ error: "Driver not found" });
     }
 
@@ -140,7 +146,6 @@ export const createRide = async (req: AuthRequest, res: Response) => {
     if (!vehicle) {
       return res.status(404).json({ error: "Vehicle not found" });
     }
-
 
     // Create a new driver ride
     const driverRide = new DriverRide({
@@ -184,19 +189,15 @@ export const createRideRequest = async (req: Request, res: Response) => {
 
     // FIND THE PASSENGER BY PASSENGERID
     const passenger = await User.findById(passengerId);
-    if (!passenger || passenger.role !== "passenger") {
+    if (!passenger || passenger.role != "passenger") {
       return res.status(404).json({ error: "Passenger not found" });
     }
 
-
-        // FIND THE RIDE BY RIDEID
-        const ride = await DriverRide.findById(rideId).populate("driver");
-        if (!ride) {
-          return res.status(404).json({ error: "Ride not found" });
-        }
-    
-    
-    
+    // FIND THE RIDE BY RIDEID
+    const ride = await DriverRide.findById(rideId).populate("driver");
+    if (!ride) {
+      return res.status(404).json({ error: "Ride not found" });
+    }
 
     // CHECK IF THE RIDE HAS AVAILABLE SEATS
     if (ride.seatsAvailable <= 0) {
@@ -239,7 +240,7 @@ export const createRideRequest = async (req: Request, res: Response) => {
 //     // Find the passenger by passengerId
 //     const passenger = await User.findById(passengerId);
 
-//     if (!passenger || passenger.role !== "passenger") {
+//     if (!passenger || passenger.role != "passenger") {
 //       return res.status(404).json({ error: "Passenger not found" });
 //     }
 
@@ -289,18 +290,18 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
     }
 
     // CHECK IF THE PASSENGER RIDE REQUEST IS ALREADY ACCEPTED OR CANCELLED
-    if (passengerRide.status === "accepted") {
+    if (passengerRide.status == "accepted") {
       return res
         .status(400)
         .json({ error: "Ride request is already accepted" });
-    } else if (passengerRide.status === "cancelled") {
+    } else if (passengerRide.status == "cancelled") {
       return res
         .status(400)
         .json({ error: "Ride request is already cancelled" });
     }
 
     // HANDLE THE DRIVER'S ACTION
-    if (action === "accept") {
+    if (action == "accept") {
       // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO "ACCEPTED"
       passengerRide.status = "accepted";
       await passengerRide.save();
@@ -309,8 +310,10 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
       ride.passengers.push(passengerRide.passenger);
       await ride.save();
 
-      return res.status(200).json({ message: "Ride request accepted by driver" });
-    } else if (action === "cancel") {
+      return res
+        .status(200)
+        .json({ message: "Ride request accepted by driver" });
+    } else if (action == "cancel") {
       // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO "CANCELLED"
       passengerRide.status = "cancelled";
       await passengerRide.save();
@@ -325,7 +328,6 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
   }
 };
 
-
 // @route    DELETE api/rides/:rideId
 // @desc     Delete a ride
 // @access   Private (Driver)
@@ -338,10 +340,7 @@ export const deleteRide = async (req: AuthRequest, res: Response) => {
     }
 
     // Check if the user is the creator of the ride or an admin
-    if (
-      ride.driver?.toString() !== req.user?.id ||
-      req.user?.role !== "admin"
-    ) {
+    if (ride.driver?.toString() != req.user?.id || req.user?.role != "admin") {
       return res
         .status(401)
         .json({ msg: "Not authorized to delete this ride" });

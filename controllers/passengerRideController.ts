@@ -37,7 +37,7 @@ export const createRideRequest = async (req: Request, res: Response) => {
 
     // FIND THE PASSENGER BY PASSENGERID
     const passenger = await User.findById(passengerId);
-    if (!passenger || passenger.role !== "passenger") {
+    if (!passenger || passenger.role != "passenger") {
       return res.status(404).json({ error: "Passenger not found" });
     }
 
@@ -90,8 +90,8 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
     const { passengerLatitude, passengerLongitude } = req.query;
 
     if (
-      typeof passengerLatitude !== "string" ||
-      typeof passengerLongitude !== "string"
+      typeof passengerLatitude != "string" ||
+      typeof passengerLongitude != "string"
     ) {
       return res.status(400).json({ msg: "Invalid latitude or longitude" });
     }
@@ -216,7 +216,7 @@ export const updateRequest = async (req: AuthRequest, res: Response) => {
     }
 
     // Check if the user is the creator of the ride request
-    if (passengerRide.passenger.toString() !== req.user?.id) {
+    if (passengerRide.passenger.toString() != req.user?.id) {
       return res
         .status(401)
         .json({ error: "Not authorized to update this ride request" });
@@ -271,14 +271,14 @@ export const completeRideRequest = async (req: AuthRequest, res: Response) => {
     }
 
     // CHECK IF THE PASSENGER RIDE REQUEST IS ALREADY COMPLETED
-    if (passengerRide.status === "completed") {
+    if ((passengerRide.status == "completed")) {
       return res
         .status(400)
         .json({ error: "Ride request is already marked as completed" });
     }
 
     // CHECK IF THE PASSENGER RIDE REQUEST BELONGS TO THE AUTHENTICATED PASSENGER
-    if (passengerRide.passenger.toString() !== passengerId) {
+    if (passengerRide.passenger.toString() != passengerId) {
       return res.status(401).json({
         error: "Not authorized to mark this ride request as completed",
       });
@@ -316,7 +316,7 @@ export const deleteRequest = async (req: AuthRequest, res: Response) => {
     }
 
     // CHECK IF THE PASSENGER RIDE REQUEST BELONGS TO THE AUTHENTICATED PASSENGER
-    if (passengerRide.passenger.toString() !== passengerId) {
+    if (passengerRide.passenger.toString() != passengerId) {
       return res.status(401).json({
         error: "Not authorized to delete this ride request",
       });
