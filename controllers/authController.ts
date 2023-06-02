@@ -53,13 +53,12 @@ export const authenticateUser = async (req: AuthRequest, res: Response) => {
     const payload = {
       user: {
         id: user.id,
-        role: req.user?.role === "admin",
       },
     };
 
     jwt.sign(
       payload,
-      process.env.JWTSECRET as string,
+      process.env.JWT_SECRET as string,
       {
         expiresIn: 360000,
       },

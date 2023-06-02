@@ -35,7 +35,7 @@ export const registerUser = async (req: Request, res: Response) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { firstname, lastname, email, password, phone_number } = req.body;
+  const { firstname, lastname, email, password, role, phone_number, location } = req.body;
 
   try {
     let user = await User.findOne({ email });
@@ -51,6 +51,8 @@ export const registerUser = async (req: Request, res: Response) => {
       email,
       phone_number,
       password,
+      role,
+      location
     });
 
     let salt = await bcrypt.genSalt(10);
@@ -60,14 +62,13 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const payload = {
       user: {
-        id: user.id,
-        // only an admin can take CRUD operations to collections & delete any users
-        // if not an admin, the user can only make CRUD operations to his/her account
+        id: user.id
       },
     };
+
     jwt.sign(
       payload,
-      process.env.JWTSECRET as string,
+      process.env.JWT_SECRET as string,
       {
         expiresIn: 360000,
       },

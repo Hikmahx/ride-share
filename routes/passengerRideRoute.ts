@@ -2,7 +2,15 @@ import express from "express";
 
 import { verifyTokenAndUser } from "../middlewares/authMiddleware";
 import { body } from "express-validator";
-import { completeRideRequest, createRideRequest, deleteRequest, getAllRequests, getAvailableDrivers, getRequestById, updateRequest } from "../controllers/passengerRideController";
+import {
+  completeRideRequest,
+  createRideRequest,
+  deleteRequest,
+  getAllRequests,
+  getAvailableDrivers,
+  getRequestById,
+  updateRequest,
+} from "../controllers/passengerRideController";
 
 const router = express.Router();
 
@@ -44,6 +52,10 @@ router.put(
 // @route   DELETE api/rides/:id
 // @desc    Delete a ride
 // @access  Private (Driver)
-router.delete("/:rideId/requests/:requestId", verifyTokenAndUser, deleteRequest);
+router.delete(
+  "/:rideId/requests/:requestId",
+  verifyTokenAndUser,
+  deleteRequest
+);
 
-export default router;
+module.exports = router;

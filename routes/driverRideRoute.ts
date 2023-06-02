@@ -49,4 +49,4 @@ router.put(
 // @access  Private (Driver)
 router.delete("/:rideId", verifyTokenAndUser, deleteRide);
 
-export default router;
+module.exports = router;
