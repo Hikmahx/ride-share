@@ -14,7 +14,7 @@ interface AuthRequest extends Request {
 // POST REQUESTS
 // ---
 
-// @route    POST api/rides/:rideId/requests
+// @route    POST api/passengers/:rideId/requests
 // @desc     Create a new ride request
 // @access   Private (Passenger)
 export const createRideRequest = async (req: Request, res: Response) => {
@@ -78,7 +78,7 @@ export const createRideRequest = async (req: Request, res: Response) => {
 // GET REQUESTS
 // ---
 
-// @route    GET api/rides/available-drivers
+// @route    GET api/passengers/available-drivers?search={pickupLocation}
 // @desc     Get a list of available drivers in close proximity to the passenger
 // @access   Public (Passenger)
 export const getAvailableDrivers = async (req: Request, res: Response) => {
@@ -168,7 +168,7 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
   }
 };
 
-// @route    GET api/rides/requests
+// @route    GET api/passengers/requests
 // @desc     Get all ride requests made by the passenger
 // @access   Private (Passenger)
 export const getAllRequests = async (req: AuthRequest, res: Response) => {
@@ -185,7 +185,7 @@ export const getAllRequests = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// @route    GET api/rides/requests/:requestId
+// @route    GET api/passengers/requests/:requestId
 // @desc     Get a specific ride request made by the passenger by requestId
 // @access   Private (Passenger)
 export const getRequestById = async (req: AuthRequest, res: Response) => {
@@ -213,7 +213,7 @@ export const getRequestById = async (req: AuthRequest, res: Response) => {
 // PUT REQUESTS
 // ---
 
-// @route    PUT api/rides/:rideId/requests/:requestId
+// @route    PUT api/passengers/:rideId/requests/:requestId
 // @desc     Update a ride request details
 // @access   Private (Passenger)
 export const updateRequest = async (req: AuthRequest, res: Response) => {
@@ -275,7 +275,7 @@ export const updateRequest = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// @route    PUT api/rides/:rideId/requests/:requestId
+// @route    PUT api/passengers/:rideId/requests/:requestId
 // @desc     Mark a ride request as completed
 // @access   Private (Passenger)
 export const completeRideRequest = async (req: AuthRequest, res: Response) => {
@@ -327,7 +327,7 @@ export const completeRideRequest = async (req: AuthRequest, res: Response) => {
 
 // DELETE REQUESTS
 
-// @route    DELETE api/rides/:rideId/requests/:requestId
+// @route    DELETE api/passengers/:rideId/requests/:requestId
 // @desc     Delete a ride request
 // @access   Private (Passenger)
 export const deleteRequest = async (req: AuthRequest, res: Response) => {
