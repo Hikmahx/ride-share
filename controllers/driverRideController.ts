@@ -149,7 +149,6 @@ export const getRideRequests = async (req: AuthRequest, res: Response) => {
 
     // Find the ride requests for the specified ride created by driver
     const rideRequests = await PassengerRide.find({ driver: req.user?.id, ride: rideId});
-    console.log(rideRequests)
     // Format the ride requests
     // const formattedRequests = rideRequests.map(({ _id, passenger, pickupLocation, dropoffLocation, numberOfPassengers, price, status }) => ({
     //   id: _id,
@@ -169,11 +168,56 @@ export const getRideRequests = async (req: AuthRequest, res: Response) => {
       requests: rideRequests,
     });
   } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Ride doesn't exist" });
+    }
     console.error(err);
     res.status(500).json({ error: "Failed to retrieve ride requests" });
   }
 };
 
+// @route    GET api/rides/:rideId/requests/:requestId
+// @desc     Get specific request for a ride
+// @access   Private (Driver)
+export const getRideRequestById = async (req: AuthRequest, res: Response) => {
+  try {
+    const { rideId, requestId } = req.params;
+
+    // Find the ride by rideId
+    const ride = await DriverRide.findById(rideId)
+      // .populate("vehicle");
+
+    if (!ride) {
+      return res.status(404).json({ error: "Ride not found" });
+    }
+
+    // Check if the authenticated user is the driver of the ride
+    if (ride.driver?.toString() != req.user?.id) {
+      return res
+        .status(401)
+        .json({ error: "Not authorized to view ride requests" });
+    }
+
+    // Find request by id for the specified ride created by driver
+    const rideRequest = await PassengerRide.findOne({ driver: req.user?.id, ride: rideId, _id:requestId});
+
+
+    if (!rideRequest) {
+      return res.status(404).json({ error: "Ride request not found" });
+    }
+
+    res.status(200).json({
+     
+      rideRequest,
+    });
+  } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Request doesn't exist" });
+    }
+    console.error(err);
+    res.status(500).json({ error: "Failed to retrieve ride request" });
+  }
+};
 
 // PUT REQUESTS
 // ---

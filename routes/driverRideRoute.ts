@@ -5,6 +5,7 @@ import {
   deleteRide,
   getAllRides,
   getRideById,
+  getRideRequestById,
   getRideRequests,
   updateRide,
 } from "../controllers/driverRideController";
@@ -37,6 +38,9 @@ router.get("/:rideId", verifyToken, getRideById);
 
 // Get ride requests for a specific ride
 router.get("/:rideId/requests", verifyToken, getRideRequests);
+
+// Get request by id for a specific ride
+router.get("/:rideId/requests/:requestId", verifyToken, getRideRequestById);
 
 // Update a ride created by the driver
 router.put("/:rideId", verifyToken, updateRide);
