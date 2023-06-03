@@ -3,7 +3,8 @@ import { Document, Schema, model } from "mongoose";
 const passengerRideSchema = new Schema(
   {
     passenger: { type: Schema.Types.ObjectId, ref: "User", required: true }, 
-    driver: { type: Schema.Types.ObjectId, ref: "DriverRide" },
+    driver: { type: Schema.Types.ObjectId, ref: "User" },
+    ride: {type: Schema.Types.ObjectId, ref: "DriverRide" },
     pickupLocation: { type: String, required: true },
     dropoffLocation: { type: String, required: true },
     numberOfPassengers: {

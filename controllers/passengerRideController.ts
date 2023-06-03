@@ -55,6 +55,7 @@ export const createRideRequest = async (req: AuthRequest, res: Response) => {
     // Create a new passenger ride request
     const newPassengerRide = new PassengerRide({
       passenger,
+      ride: rideId,
       driver: ride.driver?._id,
       pickupLocation,
       dropoffLocation,
@@ -194,6 +195,7 @@ export const getAvailableDriverRideById = async (
 
     // Format the response data
     const availableDriverRide = {
+      ride: rideId,
       id: driverRide._id,
       driver,
       seatsAvailable,
