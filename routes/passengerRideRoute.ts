@@ -7,6 +7,7 @@ import {
   createRideRequest,
   deleteRequest,
   getAllRequests,
+  getAvailableDriverRideById,
   getAvailableDrivers,
   getRequestById,
   updateRequest,
@@ -14,9 +15,9 @@ import {
 
 const router = express.Router();
 
-//  Create a new ride
+//  Create a new ride request
 router.post(
-  "/:rideId/requests",
+  "/available-drivers/:rideId/requests",
   body("pickupLocation", "Please enter your pick up location").not().isEmpty(),
   body("dropoffLocation", "Please enter your drop off location")
     .not()
@@ -33,27 +34,28 @@ router.post(
 // Get a list of available drivers in close proximity to the passenger's location
 router.get("/available-drivers", verifyToken, getAvailableDrivers);
 
+// Get an available driver's ride by rideId
+router.get("/available-drivers/:rideId", verifyToken, getAvailableDriverRideById);
+
 // Get list of ride requests made by the passenger
 router.get("/requests", verifyToken, getAllRequests);
 
 // Get a specific ride request made by the passenger
-router.get("requests/:requestId", verifyToken, getRequestById);
+router.get("/requests/:requestId", verifyToken, getRequestById);
 
 // Update a ride request details
-router.put("/:rideId/requests/:requestId", verifyToken, updateRequest);
+router.put("/available-drivers/:rideId/requests/:requestId", verifyToken, updateRequest);
 
-// Accept or cancel a ride request (Driver)
+// Ride completed (Passenger)
 router.put(
-  "/:rideId/requests/:requestId",
+  "/available-drivers/:rideId/requests/:requestId",
   verifyToken,
   completeRideRequest
 );
 
-// @route   DELETE api/rides/:id
-// @desc    Delete a ride
-// @access  Private (Driver)
+//  Delete a request
 router.delete(
-  "/:rideId/requests/:requestId",
+  "/available-drivers/:rideId/requests/:requestId",
   verifyToken,
   deleteRequest
 );
