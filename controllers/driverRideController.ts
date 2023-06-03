@@ -1,10 +1,7 @@
 import { Request, Response } from "express";
-import { body, validationResult, Result } from "express-validator";
-// import bcrypt from "bcryptjs";
-// import jwt from "jsonwebtoken";
+import { validationResult, Result } from "express-validator";
 import User, { IUser } from "../models/User";
 import dotenv from "dotenv";
-// import Ride from "../models/Ride";
 import Vehicle from "../models/Vehicle";
 import DriverRide from "../models/DriverRide";
 import PassengerRide from "../models/PassengerRide";
@@ -29,7 +26,6 @@ export const createRide = async (req: AuthRequest, res: Response) => {
   try {
     const {
       driverId,
-      // vehicle,
       pickupLocation,
       dropoffLocation,
       seatsAvailable,
@@ -49,7 +45,6 @@ export const createRide = async (req: AuthRequest, res: Response) => {
 
     // // FIND THE VEHICLE OF THE DRIVER
     const driverVehicle = await Vehicle.findOne({ driver: req.user?.id });
-    // console.log(driverVehicle);
     if (!driverVehicle) {
       return res
         .status(404)
@@ -68,7 +63,6 @@ export const createRide = async (req: AuthRequest, res: Response) => {
 
     await driverRide.save();
 
-    // res.status(201).json({ message: "Ride created successfully" });
     res.status(200).json({ message: "Ride created successfully", driverRide });
   } catch (err) {
     console.error(err);
@@ -149,22 +143,8 @@ export const getRideRequests = async (req: AuthRequest, res: Response) => {
 
     // Find the ride requests for the specified ride created by driver
     const rideRequests = await PassengerRide.find({ driver: req.user?.id, ride: rideId});
-    // Format the ride requests
-    // const formattedRequests = rideRequests.map(({ _id, passenger, pickupLocation, dropoffLocation, numberOfPassengers, price, status }) => ({
-    //   id: _id,
-    //   passenger,
-    //   pickupLocation,
-    //   dropoffLocation,
-    //   numberOfPassengers,
-    //   price,
-    //   status,
-    // }));
 
     res.status(200).json({
-      // ride: {
-      //   id: ride._id,
-      //   vehicle: ride.vehicle,
-      // },
       requests: rideRequests,
     });
   } catch (err: any) {
@@ -185,7 +165,6 @@ export const getRideRequestById = async (req: AuthRequest, res: Response) => {
 
     // Find the ride by rideId
     const ride = await DriverRide.findById(rideId)
-      // .populate("vehicle");
 
     if (!ride) {
       return res.status(404).json({ error: "Ride not found" });
@@ -380,7 +359,6 @@ export const removePassenger = async (req: Request, res: Response) => {
         }
 
     // CHECK IF THE PASSENGER EXISTS IN THE RIDE'S PASSENGERS ARRAY
-    // const passengerObjectId = (passengerRide.passenger);
     if (!ride.passengers.some((passenger) => passenger.equals(passengerRide.passenger))) {
       return res.status(400).json({ error: "Passenger not found in ride" });
     }

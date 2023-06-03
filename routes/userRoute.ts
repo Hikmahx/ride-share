@@ -5,14 +5,10 @@ import { getUserById, registerUser } from "../controllers/userController";
 
 const router = express.Router();
 
-// @route   GET api/user/find/:id
-// @desc    Get registered user by ID
-// @access  Private (Admin)
+// Get registered user by ID (Admin)
 router.get("/find/:id", verifyTokenAndAdmin, getUserById);
 
-// @route   POST api/user
-// @desc    Register user
-// @access  Public
+// Register user
 router.post(
   "/",
   body("firstname", "Please enter your first name").not().isEmpty(),

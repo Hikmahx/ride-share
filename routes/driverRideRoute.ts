@@ -54,9 +54,7 @@ verifyToken, acceptRideRequest);
 // Remove a passenger from a ride
 router.put('/:rideId/passengers/:requestId', removePassenger);
 
-// @route   DELETE api/rides/:id
-// @desc    Delete a ride
-// @access  Private (Driver)
+// Delete a ride
 router.delete("/:rideId", verifyToken, deleteRide);
 
 module.exports = router;

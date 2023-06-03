@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { body, validationResult, Result } from "express-validator";
+import { validationResult, Result } from "express-validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User, { IUser } from "../models/User";
