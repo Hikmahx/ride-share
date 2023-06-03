@@ -135,7 +135,7 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
       pickupLocation: { $regex: searchPattern },
     })
       .populate("driver", "firstname")
-      .populate("passengers", "firstname")
+      // .populate("passengers")
       .populate("vehicle");
 
     // Format the response data
@@ -150,16 +150,16 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
       } = driver;
 
       // RETURN ANY PASSENGER THAT IS CURREN
-      const passengerNames = passengers.map(
-        (passenger: any) => passenger.firstname
-      );
+      // const passengerNames = passengers.map(
+      //   (passenger: any) => passenger.firstname
+      // );
 
       return {
         id,
         driver: driverId,
         seatsAvailable,
         price,
-        passengers: passengerNames,
+        passengers,
         vehicle,
       };
     });
@@ -184,14 +184,14 @@ export const getAvailableDriverRideById = async (
     // Find the available driver ride by ID
     const driverRide = await DriverRide.findOne({ _id: rideId })
       .populate("driver", "firstname")
-      .populate("passengers", "firstname")
+      // .populate("passengers", "firstname")
       .populate("vehicle", "plateNumber");
 
     if (!driverRide) {
       return res.status(404).json({ error: "Driver ride not found" });
     }
 
-    const { driver, passengers, seatsAvailable, price, vehicle } = driverRide;
+    const { driver, seatsAvailable, price, passengers, vehicle } = driverRide;
 
     // Format the response data
     const availableDriverRide = {
@@ -200,7 +200,8 @@ export const getAvailableDriverRideById = async (
       driver,
       seatsAvailable,
       price,
-      passengers: passengers.map((passenger: any) => passenger.firstname),
+      // passengers: passengers.map((passenger: any) => passenger.firstname),
+      passengers,
       vehicle,
     };
 
