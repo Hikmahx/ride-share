@@ -168,6 +168,51 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
   }
 };
 
+
+// @route    GET api/passengers/available-drivers/:rideId
+// @desc     Get an available driver's ride by rideId
+// @access   Public (Passenger)
+export const getAvailableDriverRideById = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { rideId } = req.params;
+
+    // Find the available driver ride by ID
+    const driverRide = await DriverRide.findOne({ _id: rideId })
+    .populate("driver", "firstname")
+    .populate("passengers", "firstname")
+    .populate("vehicle", "plateNumber");
+
+    if (!driverRide) {
+      return res.status(404).json({ error: "Driver ride not found" });
+    }
+
+    const { driver, passengers, seatsAvailable, price, vehicle } = driverRide;
+
+    // Format the response data
+    const availableDriverRide = {
+      id: driverRide._id,
+      driver,
+      seatsAvailable,
+      price,
+      passengers: passengers.map((passenger: any) => passenger.firstname),
+      vehicle,
+    };
+
+    res.status(200).json(availableDriverRide)
+
+  } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Driver's Ride doesn't exist" });
+    }
+
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to retrieve available driver ride" });
+  }
+};
+
 // @route    GET api/passengers/requests
 // @desc     Get all ride requests made by the passenger
 // @access   Private (Passenger)
