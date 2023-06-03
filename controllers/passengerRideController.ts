@@ -69,7 +69,8 @@ export const createRideRequest = async (req: Request, res: Response) => {
       message: "Ride request created",
       requestId: newPassengerRide._id,
     });
-  } catch (error) {
+  } catch (err: any) {
+    console.error(err.message);
     res.status(500).json({ error: "Failed to create ride request" });
   }
 };
@@ -87,53 +88,82 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
   }
   try {
     // PASSENGER SHOULD CHOOSE A LOCATION WHERE THEY ARE USING GOOGLE MAP OR GEOLOCATION
-    const { passengerLatitude, passengerLongitude } = req.query;
+    // const { passengerLatitude, passengerLongitude } = req.query;
 
-    if (
-      typeof passengerLatitude != "string" ||
-      typeof passengerLongitude != "string"
-    ) {
-      return res.status(400).json({ msg: "Invalid latitude or longitude" });
-    }
+    // if (
+    //   typeof passengerLatitude != "string" ||
+    //   typeof passengerLongitude != "string"
+    // ) {
+    //   return res.status(400).json({ msg: "Invalid latitude or longitude" });
+    // }
 
     // NOTE: CHECK IF VEHICLE IS AVAILABLE, IF VEHICLE ISN'T, DON'T SHOW
     // SOMETIMES A PASSENGER CAN TELL THE TO LET THEM BE THE ONLY PASSENGER (EXTRA COST)
 
     // FIND AVAILABEL DRIVERS IN CLOSE PROXIMITY
+    // const drivers = await DriverRide.find({
+    //   pickupLocation: {
+    //     $nearSphere: {
+    //       $geometry: {
+    //         type: "Point",
+    //         coordinates: [
+    //           parseFloat(passengerLongitude as any),
+    //           parseFloat(passengerLatitude as any),
+    //         ],
+    //       },
+    //       $maxDistance: 5000, // Maximum distance in meters (adjust as needed)
+    //     },
+    //   },
+    // })
+    // .populate("driver", "firstname")
+    // .populate("passengers", "firstname");
+
+    // PASSENGERS CAN SEARCH FOR RIDES BASED ON THE PICKUP LOCATION
+    const { search } = req.query;
+
+    if(!search){
+      return res.status(404).json({ error: "No search parameter given. Ensure to give one." });
+    }
+
+    // Construct the case-insensitive regex pattern for the search query
+    const searchPattern = new RegExp(search as string, "i");
+
     const drivers = await DriverRide.find({
-      pickupLocation: {
-        $nearSphere: {
-          $geometry: {
-            type: "Point",
-            coordinates: [
-              parseFloat(passengerLongitude),
-              parseFloat(passengerLatitude),
-            ],
-          },
-          $maxDistance: 5000, // Maximum distance in meters (adjust as needed)
-        },
-      },
+      pickupLocation: { $regex: searchPattern },
     })
       .populate("driver", "firstname")
-      .populate("passengers", "firstname");
+      .populate("passengers", "firstname")
+      .populate("vehicle");
 
     // Format the response data
     const availableDrivers = drivers.map((driver) => {
-      const { driver: driverId, passengers, seatsAvailable, price } = driver;
+      const {
+        id,
+        driver: driverId,
+        passengers,
+        seatsAvailable,
+        price,
+        vehicle,
+      } = driver;
+
+      // RETURN ANY PASSENGER THAT IS CURREN
       const passengerNames = passengers.map(
         (passenger: any) => passenger.firstname
       );
 
       return {
+        id,
         driver: driverId,
         seatsAvailable,
         price,
         passengers: passengerNames,
+        vehicle,
       };
     });
 
     res.status(200).json(availableDrivers);
-  } catch (error) {
+  } catch (err: any) {
+    console.error(err.message);
     res.status(500).json({ error: "Failed to retrieve available drivers" });
   }
 };
@@ -174,8 +204,8 @@ export const getRequestById = async (req: AuthRequest, res: Response) => {
     }
 
     res.status(200).json(request);
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (err: any) {
+    console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
@@ -239,8 +269,8 @@ export const updateRequest = async (req: AuthRequest, res: Response) => {
     res
       .status(200)
       .json({ msg: "Ride request is successfully updated", updatedRequest });
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (err: any) {
+    console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
@@ -271,7 +301,7 @@ export const completeRideRequest = async (req: AuthRequest, res: Response) => {
     }
 
     // CHECK IF THE PASSENGER RIDE REQUEST IS ALREADY COMPLETED
-    if ((passengerRide.status == "completed")) {
+    if (passengerRide.status == "completed") {
       return res
         .status(400)
         .json({ error: "Ride request is already marked as completed" });
@@ -289,8 +319,8 @@ export const completeRideRequest = async (req: AuthRequest, res: Response) => {
     await passengerRide.save();
 
     res.status(200).json({ message: "Ride request marked as completed" });
-  } catch (error: any) {
-    console.error(error);
+  } catch (err: any) {
+    console.error(err);
     res.status(500).json({ error: "Failed to mark ride request as completed" });
   }
 };
@@ -329,8 +359,8 @@ export const deleteRequest = async (req: AuthRequest, res: Response) => {
     });
 
     res.status(200).json({ msg: "Ride request is successfully deleted" });
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (err: any) {
+    console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
