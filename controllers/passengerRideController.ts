@@ -17,7 +17,7 @@ interface AuthRequest extends Request {
 // @route    POST api/passengers/:rideId/requests
 // @desc     Create a new ride request
 // @access   Private (Passenger)
-export const createRideRequest = async (req: Request, res: Response) => {
+export const createRideRequest = async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -25,7 +25,7 @@ export const createRideRequest = async (req: Request, res: Response) => {
 
   try {
     const {
-      passengerId,
+      // passengerId,
       pickupLocation,
       dropoffLocation,
       numberOfPassengers,
@@ -36,7 +36,7 @@ export const createRideRequest = async (req: Request, res: Response) => {
     const { rideId } = req.params;
 
     // FIND THE PASSENGER BY PASSENGERID
-    const passenger = await User.findById(passengerId);
+    const passenger = await User.findById(req.user?.id);
     if (!passenger || passenger.role != "passenger") {
       return res.status(404).json({ error: "Passenger not found" });
     }
@@ -54,7 +54,7 @@ export const createRideRequest = async (req: Request, res: Response) => {
 
     // Create a new passenger ride request
     const newPassengerRide = new PassengerRide({
-      passenger: passengerId,
+      passenger,
       driver: ride.driver?._id,
       pickupLocation,
       dropoffLocation,
@@ -121,8 +121,10 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
     // PASSENGERS CAN SEARCH FOR RIDES BASED ON THE PICKUP LOCATION
     const { search } = req.query;
 
-    if(!search){
-      return res.status(404).json({ error: "No search parameter given. Ensure to give one." });
+    if (!search) {
+      return res
+        .status(404)
+        .json({ error: "No search parameter given. Ensure to give one." });
     }
 
     // Construct the case-insensitive regex pattern for the search query
@@ -168,7 +170,6 @@ export const getAvailableDrivers = async (req: Request, res: Response) => {
   }
 };
 
-
 // @route    GET api/passengers/available-drivers/:rideId
 // @desc     Get an available driver's ride by rideId
 // @access   Public (Passenger)
@@ -181,9 +182,9 @@ export const getAvailableDriverRideById = async (
 
     // Find the available driver ride by ID
     const driverRide = await DriverRide.findOne({ _id: rideId })
-    .populate("driver", "firstname")
-    .populate("passengers", "firstname")
-    .populate("vehicle", "plateNumber");
+      .populate("driver", "firstname")
+      .populate("passengers", "firstname")
+      .populate("vehicle", "plateNumber");
 
     if (!driverRide) {
       return res.status(404).json({ error: "Driver ride not found" });
@@ -201,13 +202,11 @@ export const getAvailableDriverRideById = async (
       vehicle,
     };
 
-    res.status(200).json(availableDriverRide)
-
+    res.status(200).json(availableDriverRide);
   } catch (err: any) {
     if (err.name === "CastError") {
       return res.status(400).json({ msg: "Driver's Ride doesn't exist" });
     }
-
     console.error(err.message);
     res.status(500).json({ error: "Failed to retrieve available driver ride" });
   }
@@ -250,6 +249,9 @@ export const getRequestById = async (req: AuthRequest, res: Response) => {
 
     res.status(200).json(request);
   } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Request doesn't exist" });
+    }
     console.error(err.message);
     res.status(500).send("Server Error");
   }
@@ -258,7 +260,7 @@ export const getRequestById = async (req: AuthRequest, res: Response) => {
 // PUT REQUESTS
 // ---
 
-// @route    PUT api/passengers/:rideId/requests/:requestId
+// @route    PUT api/passengers/available-drivers/:rideId/requests/:requestId
 // @desc     Update a ride request details
 // @access   Private (Passenger)
 export const updateRequest = async (req: AuthRequest, res: Response) => {
@@ -299,13 +301,14 @@ export const updateRequest = async (req: AuthRequest, res: Response) => {
 
     // Update the ride request
     const updatedRequest = await PassengerRide.findByIdAndUpdate(
+      requestId,
       {
         $set: {
           pickupLocation,
           dropoffLocation,
           numberOfPassengers,
           price,
-          ...updatedFields,
+          // ...updatedFields,
         },
       },
       { new: true }
@@ -315,12 +318,15 @@ export const updateRequest = async (req: AuthRequest, res: Response) => {
       .status(200)
       .json({ msg: "Ride request is successfully updated", updatedRequest });
   } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Request or Ride doesn't exist" });
+    }
     console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
 
-// @route    PUT api/passengers/:rideId/requests/:requestId
+// @route    PUT api/passengers/available-drivers/:rideId/requests/:requestId/completed
 // @desc     Mark a ride request as completed
 // @access   Private (Passenger)
 export const completeRideRequest = async (req: AuthRequest, res: Response) => {
@@ -405,6 +411,9 @@ export const deleteRequest = async (req: AuthRequest, res: Response) => {
 
     res.status(200).json({ msg: "Ride request is successfully deleted" });
   } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Request doesn't exist" });
+    }
     console.error(err.message);
     res.status(500).send("Server Error");
   }

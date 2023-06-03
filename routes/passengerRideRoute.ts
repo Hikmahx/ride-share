@@ -48,7 +48,7 @@ router.put("/available-drivers/:rideId/requests/:requestId", verifyToken, update
 
 // Ride completed (Passenger)
 router.put(
-  "/available-drivers/:rideId/requests/:requestId",
+  "/available-drivers/:rideId/requests/:requestId/completed",
   verifyToken,
   completeRideRequest
 );
