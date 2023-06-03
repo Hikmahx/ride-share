@@ -25,7 +25,8 @@ app.use("/api/vehicles", require("./routes/vehicleRoute"));
 
 app.get("/", (req: any, res: any) => {
   console.log("Hello world");
-  return res.status(200).json({ message: "Hello World" });
+  return res.status(200).json({ message: "Hi there! This is a backend project for ride sharing. Check my GitHub: https://github.com/Hikmahx/ride-share for more info" });
 });
 
 app.listen(PORT, () => console.log("This is listening on PORT: " + PORT));
+
