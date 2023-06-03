@@ -3,7 +3,7 @@ import express from "express";
 import { verifyToken, verifyTokenAndUser } from "../middlewares/authMiddleware";
 import { body } from "express-validator";
 import {
-  completeRideRequest,
+  updateRequestStatus,
   createRideRequest,
   deleteRequest,
   getAllRequests,
@@ -35,7 +35,11 @@ router.post(
 router.get("/available-drivers", verifyToken, getAvailableDrivers);
 
 // Get an available driver's ride by rideId
-router.get("/available-drivers/:rideId", verifyToken, getAvailableDriverRideById);
+router.get(
+  "/available-drivers/:rideId",
+  verifyToken,
+  getAvailableDriverRideById
+);
 
 // Get list of ride requests made by the passenger
 router.get("/requests", verifyToken, getAllRequests);
@@ -44,13 +48,18 @@ router.get("/requests", verifyToken, getAllRequests);
 router.get("/requests/:requestId", verifyToken, getRequestById);
 
 // Update a ride request details
-router.put("/available-drivers/:rideId/requests/:requestId", verifyToken, updateRequest);
-
-// Ride completed (Passenger)
 router.put(
-  "/available-drivers/:rideId/requests/:requestId/completed",
+  "/available-drivers/:rideId/requests/:requestId",
   verifyToken,
-  completeRideRequest
+  updateRequest
+);
+
+// Update ride status (Passenger)
+router.put(
+  "/available-drivers/:rideId/requests/:requestId/status",
+  body("status", "Please provide a status").not().isEmpty(),
+  verifyToken,
+  updateRequestStatus
 );
 
 //  Delete a request

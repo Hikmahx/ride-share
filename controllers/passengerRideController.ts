@@ -326,10 +326,10 @@ export const updateRequest = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// @route    PUT api/passengers/available-drivers/:rideId/requests/:requestId/completed
-// @desc     Mark a ride request as completed
+// @route    PUT api/passengers/available-drivers/:rideId/requests/:requestId/status
+// @desc     Update the status of a ride request
 // @access   Private (Passenger)
-export const completeRideRequest = async (req: AuthRequest, res: Response) => {
+export const updateRequestStatus = async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -337,6 +337,8 @@ export const completeRideRequest = async (req: AuthRequest, res: Response) => {
 
   try {
     const { rideId, requestId } = req.params;
+    const { status } = req.body;
+
     const passengerId = req.user?.id;
 
     // FIND THE RIDE BY RIDEID
@@ -351,28 +353,43 @@ export const completeRideRequest = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: "Ride request not found" });
     }
 
-    // CHECK IF THE PASSENGER RIDE REQUEST IS ALREADY COMPLETED
-    if (passengerRide.status == "completed") {
+    // CHECK IF THE PASSENGER RIDE REQUEST IS THE SAME AS THE ONE GIVEN IN THE BODY
+    if (passengerRide.status == status) {
       return res
         .status(400)
-        .json({ error: "Ride request is already marked as completed" });
+        .json({ error: `Ride request is already marked as ${status}` });
     }
 
     // CHECK IF THE PASSENGER RIDE REQUEST BELONGS TO THE AUTHENTICATED PASSENGER
     if (passengerRide.passenger.toString() != passengerId) {
       return res.status(401).json({
-        error: "Not authorized to mark this ride request as completed",
+        error: `Not authorized to mark this ride request as ${status}`,
       });
     }
 
-    // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO "COMPLETED"
-    passengerRide.status = "completed";
+    // VALIDATE THE STATUS VALUE (THE DRIVER IS THE ONE WHO CAN CHANGE THE STATUS TO ACCEPTED)
+    if (!["requested", "completed", "cancelled"].includes(status)) {
+      return res.status(400).json({ error: `${status} not a valid status value for passenger` });
+    }
+
+    // CHECK IF THE STATUS IS BEING CHANGED TO "COMPLETED" FROM "ACCEPTED"
+    if (status === "completed" && passengerRide.status !== "accepted") {
+      return res.status(400).json({
+        error: "Ride request must first be accepted before marked as completed",
+      });
+    }
+
+    // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO WHAT'S PROVIDED
+    passengerRide.status = status;
     await passengerRide.save();
 
-    res.status(200).json({ message: "Ride request marked as completed" });
+    res.status(200).json({ message: `Ride request marked as ${status}`});
   } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Request or Ride doesn't exist" });
+    }
     console.error(err);
-    res.status(500).json({ error: "Failed to mark ride request as completed" });
+    res.status(500).json({ error: `Failed to mark ride request` });
   }
 };
 
