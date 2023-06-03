@@ -1,6 +1,6 @@
 import express from "express";
 
-import { verifyTokenAndUser } from "../middlewares/authMiddleware";
+import { verifyToken, verifyTokenAndUser } from "../middlewares/authMiddleware";
 import { body } from "express-validator";
 import {
   completeRideRequest,
@@ -26,26 +26,26 @@ router.post(
     "Please passenger number shouldnt be less than 1"
   ).isLength({ min: 1 }),
   body("price", "Please enter the price of your ride").isLength({ min: 1 }),
-  verifyTokenAndUser,
+  verifyToken,
   createRideRequest
 );
 
 // Get a list of available drivers in close proximity to the passenger's location
-router.get("/available-drivers", verifyTokenAndUser, getAvailableDrivers);
+router.get("/available-drivers", verifyToken, getAvailableDrivers);
 
 // Get list of ride requests made by the passenger
-router.get("/requests", verifyTokenAndUser, getAllRequests);
+router.get("/requests", verifyToken, getAllRequests);
 
 // Get a specific ride request made by the passenger
-router.get("requests/:requestId", verifyTokenAndUser, getRequestById);
+router.get("requests/:requestId", verifyToken, getRequestById);
 
 // Update a ride request details
-router.put("/:rideId/requests/:requestId", verifyTokenAndUser, updateRequest);
+router.put("/:rideId/requests/:requestId", verifyToken, updateRequest);
 
 // Accept or cancel a ride request (Driver)
 router.put(
   "/:rideId/requests/:requestId",
-  verifyTokenAndUser,
+  verifyToken,
   completeRideRequest
 );
 
@@ -54,7 +54,7 @@ router.put(
 // @access  Private (Driver)
 router.delete(
   "/:rideId/requests/:requestId",
-  verifyTokenAndUser,
+  verifyToken,
   deleteRequest
 );
 

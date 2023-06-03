@@ -20,7 +20,7 @@ app.use(cors());
 app.use("/api/auth", require("./routes/authRoute"));
 app.use("/api/users", require("./routes/userRoute"));
 app.use("/api/rides", require("./routes/driverRideRoute"));
-app.use("/api/rides", require("./routes/passengerRideRoute"));
+app.use("/api/passengers", require("./routes/passengerRideRoute"));
 app.use("/api/vehicles", require("./routes/vehicleRoute"));
 
 app.get("/", (req: any, res: any) => {
