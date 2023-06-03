@@ -46,7 +46,9 @@ router.get("/:rideId/requests/:requestId", verifyToken, getRideRequestById);
 router.put("/:rideId", verifyToken, updateRide);
 
 // Accept or cancel a ride request (Driver)
-router.put("/:rideId/requests/:requestId", verifyToken, acceptRideRequest);
+router.put("/:rideId/requests/:requestId",
+body("status", "Please provide a status").not().isEmpty(),
+verifyToken, acceptRideRequest);
 
 // @route   DELETE api/rides/:id
 // @desc    Delete a ride

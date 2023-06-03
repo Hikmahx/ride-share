@@ -297,7 +297,7 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
 
   try {
     const { rideId, requestId } = req.params;
-    const { action } = req.body;
+    const { status } = req.body;
 
     // FIND THE RIDE BY RIDEID
     const ride = await DriverRide.findById(rideId);
@@ -322,8 +322,8 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
         .json({ error: "Ride request is already cancelled" });
     }
 
-    // HANDLE THE DRIVER'S ACTION
-    if (action == "accept") {
+    // HANDLE THE DRIVER'S status
+    if (status == "accepted") {
       // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO "ACCEPTED"
       passengerRide.status = "accepted";
       await passengerRide.save();
@@ -335,15 +335,15 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
       return res
         .status(200)
         .json({ message: "Ride request accepted by driver" });
-    } else if (action == "cancel") {
+    } else if (status == "cancelled") {
       // UPDATE THE STATUS OF THE PASSENGER RIDE REQUEST TO "CANCELLED"
       passengerRide.status = "cancelled";
       await passengerRide.save();
 
       return res.status(200).json({ message: "Ride request cancelled" });
     } else {
-      // IF ACTION GIVEN IS NOT ACCEPTED OR CANCELLED (WILL UPDATE LATER, IE IF ITS COMPLETED IT IS THE PASSENGER WHO WILL PERFORM THIS ACTION)
-      return res.status(400).json({ error: "Invalid action" });
+      // IF status GIVEN IS NOT ACCEPTED OR CANCELLED (WILL UPDATE LATER, IE IF ITS COMPLETED IT IS THE PASSENGER WHO WILL PERFORM THIS STATUS)
+      return res.status(400).json({ error: "Invalid status" });
     }
   } catch (err: any) {
     if (err.name === "CastError") {
