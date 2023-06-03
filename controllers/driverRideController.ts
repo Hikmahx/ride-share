@@ -125,6 +125,56 @@ export const getRideById = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// @route    GET api/rides/:rideId/requests
+// @desc     Get ride requests for a specific ride
+// @access   Private (Driver)
+export const getRideRequests = async (req: AuthRequest, res: Response) => {
+  try {
+    const { rideId } = req.params;
+
+    // Find the ride by rideId
+    const ride = await DriverRide.findById(rideId)
+      // .populate("vehicle");
+
+    if (!ride) {
+      return res.status(404).json({ error: "Ride not found" });
+    }
+
+    // Check if the authenticated user is the driver of the ride
+    if (ride.driver?.toString() != req.user?.id) {
+      return res
+        .status(401)
+        .json({ error: "Not authorized to view ride requests" });
+    }
+
+    // Find the ride requests for the specified ride created by driver
+    const rideRequests = await PassengerRide.find({ driver: req.user?.id, ride: rideId});
+    console.log(rideRequests)
+    // Format the ride requests
+    // const formattedRequests = rideRequests.map(({ _id, passenger, pickupLocation, dropoffLocation, numberOfPassengers, price, status }) => ({
+    //   id: _id,
+    //   passenger,
+    //   pickupLocation,
+    //   dropoffLocation,
+    //   numberOfPassengers,
+    //   price,
+    //   status,
+    // }));
+
+    res.status(200).json({
+      // ride: {
+      //   id: ride._id,
+      //   vehicle: ride.vehicle,
+      // },
+      requests: rideRequests,
+    });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to retrieve ride requests" });
+  }
+};
+
+
 // PUT REQUESTS
 // ---
 
