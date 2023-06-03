@@ -7,6 +7,7 @@ import {
   getRideById,
   getRideRequestById,
   getRideRequests,
+  removePassenger,
   updateRide,
 } from "../controllers/driverRideController";
 import { verifyToken } from "../middlewares/authMiddleware";
@@ -49,6 +50,9 @@ router.put("/:rideId", verifyToken, updateRide);
 router.put("/:rideId/requests/:requestId",
 body("status", "Please provide a status").not().isEmpty(),
 verifyToken, acceptRideRequest);
+
+// Remove a passenger from a ride
+router.put('/:rideId/passengers/:requestId', removePassenger);
 
 // @route   DELETE api/rides/:id
 // @desc    Delete a ride

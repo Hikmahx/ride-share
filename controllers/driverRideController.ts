@@ -353,6 +353,57 @@ export const acceptRideRequest = async (req: Request, res: Response) => {
   }
 };
 
+
+// @route    PUT api/rides/:rideId/passengers/:requestId
+// @desc     Remove a passenger from a ride
+// @access   Private (Driver)
+export const removePassenger = async (req: Request, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { rideId, requestId } = req.params;
+
+    // FIND THE RIDE BY RIDEID
+    const ride = await DriverRide.findById(rideId);
+    if (!ride) {
+      return res.status(404).json({ error: "Ride not found" });
+    }
+
+        // SET/ UPDATE PASSENGER'S REQUEST TO CANCELLED
+        const passengerRide = await PassengerRide.findById(requestId);
+
+        if (!passengerRide) {
+          return res.status(404).json({ error: 'Passenger ride not found' });
+        }
+
+    // CHECK IF THE PASSENGER EXISTS IN THE RIDE'S PASSENGERS ARRAY
+    // const passengerObjectId = (passengerRide.passenger);
+    if (!ride.passengers.some((passenger) => passenger.equals(passengerRide.passenger))) {
+      return res.status(400).json({ error: "Passenger not found in ride" });
+    }
+
+
+ 
+     passengerRide.status = 'cancelled';
+     await passengerRide.save();
+
+    // REMOVE THE PASSENGER FROM THE RIDE'S PASSENGERS ARRAY
+    ride.passengers = ride.passengers.filter((passenger) => !passenger.equals(passengerRide.passenger));
+    await ride.save();
+
+    res.status(200).json({ message: "Passenger removed from ride" });
+  } catch (err: any) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ msg: "Ride or Passenger doesn't exist" });
+    }
+    res.status(500).json({ error: "Failed to remove passenger from ride" });
+  }
+};
+
+
 // DELETE REQUESTS
 
 // @route    DELETE api/rides/:rideId
