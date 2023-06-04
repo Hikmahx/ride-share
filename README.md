@@ -11,6 +11,7 @@ This is the Node.js Express backend documentation for RideShare, a ride-sharing 
 - [Endpoints](#endpoints)
 - [My Process](#my-process)
   - [Built With](#built-with)
+  - [App Summary](#app-summary)
 - [Author](#author)
 
 ## Overview
@@ -76,8 +77,39 @@ Users should be able to:
 
 - Node.js
 - Express.js
-- MongoDB (or any preferred database)
+- TypeScript
+- MongoDB
 - JSON Web Tokens (JWT) for authentication
+
+### App Summary
+
+#### User
+- The user model is for 3 roles: admin, passenger, driver.
+- If a user is not verified, prevent them from requesting or accepting rides. 
+- An admin should be the one who verifies new users.
+
+#### Vehicle
+- A driver must have a vehicle. It should be created after the driver is created. Passengers should be prevented from creating a vehicle
+- When a driver is created, ensure they have a vehicle or the driver will be prevented from accepting rides.
+- A driver is allowed only one vehicle which they can modified if the need be. They can't delete their vehicle, simply create or update it.
+
+#### Rides
+##### Passengers
+Should be allowed to:
+- Find available drivers and create a request to a specific ride a driver has created
+- View the kind of vehicle the driver is using for the ride
+- Cancel their own request
+- Prevented from marking ride as completed if ride hasn't even been accepted by driver
+- Maybe view the first names of other passengers in the ride
+- Bring others with them in the ride if there is enough seats available
+
+##### Drivers
+Should be able to:
+- Create a ride where they can accept or cancel ride requests from passengers
+- Get a list of requests passengers make to their ride
+- Get the full request details of a request a passenger makes
+- Change the availabilty of the vehicle
+
 
 ## Author
 
