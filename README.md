@@ -1,6 +1,6 @@
 # Ride Share - A Ride-Sharing Application
 
-This is the Node.js Express backend documentation for Ride Share, a ride-sharing application (like uberpool). It provides various endpoints for user authentication, managing users, rides, vehicles, and ride requests.
+This is the Node.js Express backend documentation for Ride Share, a ride-sharing application. It provides various endpoints for user authentication, managing users, rides, vehicles, and ride requests.
 
 ## Table of Contents
 
