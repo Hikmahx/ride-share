@@ -23,11 +23,11 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = [
         ('passenger', 'Passenger'),
         ('driver', 'Driver'),
-        ('admin', 'Admin'),
+        # ('admin', 'Admin'),
     ]
 
-    firstname = models.CharField(max_length=255, blank=False, null=False, default='')
-    lastname = models.CharField(max_length=255, blank=False, null=False)
+    firstname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255)
     email = models.EmailField(
         verbose_name='email address',
         max_length=255,

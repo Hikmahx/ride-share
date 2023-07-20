@@ -1,41 +1,49 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
-from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+# from knox.models import AuthToken
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, LogoutSerializer
+from django.contrib.auth import authenticate, login, logout
+from rest_framework.views import APIView
+from user_app.models import Profile
 
-# Register API
-class RegisterAPI(generics.GenericAPIView):
+
+class RegisterAPI(generics.CreateAPIView):
+    queryset = Profile.objects.all()
     serializer_class = RegisterSerializer
+    permission_classes = (permissions.AllowAny,)
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "token": AuthToken.objects.create(user)[1]
-        })
 
-# Login API
 class LoginAPI(generics.GenericAPIView):
     serializer_class = LoginSerializer
+    permission_classes = (permissions.AllowAny,)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-        _, token = AuthToken.objects.create(user)
+        refresh = RefreshToken.for_user(user)
         return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "token": token
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
         })
 
-# Get User API
-class UserAPI(generics.RetrieveAPIView):
-  permission_classes = [
-    permissions.IsAuthenticated,
-  ]
-  serializer_class = UserSerializer
 
-  def get_object(self):
-    return self.request.user
+class LogoutAPI(generics.GenericAPIView):
+    serializer_class = LogoutSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        logout(request)
+        return Response(status=204)
+
+
+class UserProfileAPI(generics.RetrieveAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
