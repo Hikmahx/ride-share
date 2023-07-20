@@ -26,14 +26,14 @@ class Profile(AbstractBaseUser, PermissionsMixin):
         # ('admin', 'Admin'),
     ]
 
-    firstname = models.CharField(max_length=255)
-    lastname = models.CharField(max_length=255)
+    firstname = models.CharField( verbose_name='First Name', max_length=255)
+    lastname = models.CharField(verbose_name='Last Name', max_length=255)
     email = models.EmailField(
         verbose_name='email address',
         max_length=255,
         unique=True,
     )
-    password = models.CharField(max_length=50)
+    # password = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=20)
     role = models.CharField(
         max_length=50, choices=ROLE_CHOICES, default='passenger')
