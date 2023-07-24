@@ -8,9 +8,10 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         # fields = '__all__'
-        fields = ['firstname', 'lastname', 'email',
-                  'password', 'phone_number', 'role']
-        read_only_fields = ('verified',)  # Mark 'verified' field as read-only
+        fields = ['id', 'firstname', 'lastname', 'email',
+                  'phone_number', 'role', 'location', 'verified', 'created_at', 'updated_at']
+        # read_only_fields = ('verified',)  # Mark 'verified' field as read-only
+        # exclude = ('password', 'is_superuser', 'groups', 'user_permissions')
 
     def save(self):
         if Profile.objects.filter(email=self.validated_data['email']).exists():
