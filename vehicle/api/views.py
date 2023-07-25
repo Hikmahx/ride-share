@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from vehicle.models import Vehicle
 from .serializers import NewVehicleSerializer, VehicleSerializer
 from user_app.api.permissions import IsDriver
+from rest_framework.mixins import UpdateModelMixin
+
 
 class VehicleAPI(generics.ListCreateAPIView):
     queryset = Vehicle.objects.all()
@@ -20,9 +22,9 @@ class VehicleAPI(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save(driver=self.request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
 
-class UpdateVehicleAPI(generics.UpdateAPIView):
+
+class UpdateVehicleAPI(UpdateModelMixin, generics.GenericAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
     permission_classes = [IsAuthenticated]
@@ -30,3 +32,7 @@ class UpdateVehicleAPI(generics.UpdateAPIView):
     def get_object(self):
         # Retrieve the vehicle for the authenticated driver
         return Vehicle.objects.get(driver=self.request.user)
+
+    def put(self, request, *args, **kwargs):
+        # UpdateModelMixin's partial_update method used for partial (instead of the default full) updates
+        return self.partial_update(request, *args, **kwargs)
